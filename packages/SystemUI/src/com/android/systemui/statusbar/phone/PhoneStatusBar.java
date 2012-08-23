@@ -649,6 +649,10 @@ public class PhoneStatusBar extends BaseStatusBar {
         }
     }
 
+    void onBarViewDetached() {
+     //   WindowManagerImpl.getDefault().removeView(mStatusBarWindow);
+    }
+   
     @Override
     protected void updateSearchPanel() {
         super.updateSearchPanel();
