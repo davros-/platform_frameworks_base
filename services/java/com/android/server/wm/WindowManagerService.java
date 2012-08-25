@@ -34,6 +34,8 @@ import static android.view.WindowManager.LayoutParams.TYPE_INPUT_METHOD_DIALOG;
 import static android.view.WindowManager.LayoutParams.TYPE_WALLPAPER;
 
 import com.android.internal.app.IBatteryStats;
+import com.android.internal.app.ThemeUtils;
+
 import com.android.internal.policy.PolicyManager;
 import com.android.internal.policy.impl.PhoneWindowManager;
 import com.android.internal.view.IInputContext;
@@ -307,6 +309,12 @@ public class WindowManagerService extends IWindowManager.Stub
         }
     };
 
+    private BroadcastReceiver mThemeChangeReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            mUiContext = null;
+        }
+    };
+
     final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -320,6 +328,7 @@ public class WindowManagerService extends IWindowManager.Stub
     };
 
     final Context mContext;
+    private Context mUiContext;
 
     final boolean mHaveInputMethods;
 
@@ -611,8 +620,6 @@ public class WindowManagerService extends IWindowManager.Stub
     float mAnimatorDurationScale = 1.0f;
 
     final InputManagerService mInputManager;
-
-    private boolean mForceDisableHardwareKeyboard = false;
 
     // Who is holding the screen on.
     Session mHoldingScreenOn;
@@ -914,9 +921,6 @@ public class WindowManagerService extends IWindowManager.Stub
         mInputManager = new InputManagerService(context, mInputMonitor);
         mAnimator = new WindowAnimator(this, context, mPolicy);
 
-        mForceDisableHardwareKeyboard = context.getResources().getBoolean(
-                com.android.internal.R.bool.config_forceDisableHardwareKeyboard);
-
         PolicyThread thr = new PolicyThread(mPolicy, this, context, pm);
         thr.start();
 
@@ -938,6 +942,15 @@ public class WindowManagerService extends IWindowManager.Stub
         Surface.openTransaction();
         createWatermark();
         Surface.closeTransaction();
+
+        ThemeUtils.registerThemeChangeReceiver(mContext, mThemeChangeReceiver);
+    }
+
+    private Context getUiContext() {
+        if (mUiContext == null) {
+            mUiContext = ThemeUtils.createUiContext(mContext);
+        }
+        return mUiContext != null ? mUiContext : mContext;
     }
 
     public InputManagerService getInputManagerService() {
@@ -5154,19 +5167,19 @@ public class WindowManagerService extends IWindowManager.Stub
     // Called by window manager policy.  Not exposed externally.
     @Override
     public void shutdown() {
-        ShutdownThread.shutdown(mContext, true);
+        ShutdownThread.shutdown(getUiContext(), true);
     }
 
     // Called by window manager policy.  Not exposed externally.
     @Override
     public void rebootSafeMode() {
-        ShutdownThread.rebootSafeMode(mContext, true);
+        ShutdownThread.rebootSafeMode(getUiContext(), true);
     }
 
     // Called by window manager policy.  Not exposed externally.
     @Override
     public void reboot() {
-        ShutdownThread.reboot(mContext, null, true);
+        ShutdownThread.reboot(getUiContext(), null, true);
     }
 
     public void setInputFilter(InputFilter filter) {
@@ -5539,9 +5552,6 @@ public class WindowManagerService extends IWindowManager.Stub
 
             // The screenshot API does not apply the current screen rotation.
             rot = mDisplay.getRotation();
-            // Allow for abnormal hardware orientation
-            rot = (rot + (android.os.SystemProperties.getInt("ro.sf.hwrotation",0) / 90 )) % 4;
-
             int fw = frame.width();
             int fh = frame.height();
 
@@ -6570,10 +6580,7 @@ public class WindowManagerService extends IWindowManager.Stub
             }
 
             // Determine whether a hard keyboard is available and enabled.
-            boolean hardKeyboardAvailable = false;
-            if (!mForceDisableHardwareKeyboard) {
-                mHardKeyboardAvailable = config.keyboard != Configuration.KEYBOARD_NOKEYS;
-            }
+            boolean hardKeyboardAvailable = config.keyboard != Configuration.KEYBOARD_NOKEYS;
             if (hardKeyboardAvailable != mHardKeyboardAvailable) {
                 mHardKeyboardAvailable = hardKeyboardAvailable;
                 mHardKeyboardEnabled = hardKeyboardAvailable;
@@ -10169,3 +10176,4 @@ public class WindowManagerService extends IWindowManager.Stub
                 pendingLayoutChanges));
     }
 }
+
