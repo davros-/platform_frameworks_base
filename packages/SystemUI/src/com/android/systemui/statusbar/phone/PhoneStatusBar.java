@@ -2482,9 +2482,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         makeStatusBarView();
         repositionNavigationBar();
         mNavigationBarView.updateResources();
-        addNavigationBar();
-
-
+        
         // recreate StatusBarIconViews.
         for (int i = 0; i < nIcons; i++) {
             StatusBarIcon icon = icons.get(i);
