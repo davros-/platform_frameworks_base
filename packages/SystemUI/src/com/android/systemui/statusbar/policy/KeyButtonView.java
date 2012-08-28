@@ -27,8 +27,6 @@ import android.hardware.input.InputManager;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.ServiceManager;
-import android.provider.Settings;
-import android.provider.Settings.SettingNotFoundException;
 import android.util.AttributeSet;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.HapticFeedbackConstants;
@@ -59,9 +57,6 @@ public class KeyButtonView extends ImageView {
     boolean mSupportsLongpress = true;
     RectF mRect = new RectF(0f,0f,0f,0f);
     AnimatorSet mPressedAnim;
-
-    int durationSpeedOn = 500;
-    int durationSpeedOff = 50;
 
     Runnable mCheckLongPress = new Runnable() {
         public void run() {
@@ -105,32 +100,6 @@ public class KeyButtonView extends ImageView {
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
     }
 
-    public int getCode() {
-            return mCode;
-    }
-    
-    public void setGlowBackground(int id) {
-        mGlowBG = getResources().getDrawable(id);
-        if (mGlowBG != null) {
-            setDrawingAlpha(BUTTON_QUIESCENT_ALPHA);
-            mGlowWidth = mGlowBG.getIntrinsicWidth();
-            mGlowHeight = mGlowBG.getIntrinsicHeight();
-            mDrawingAlpha = BUTTON_QUIESCENT_ALPHA;
-
-            int defaultColor = mContext.getResources().getColor(
-                    com.android.internal.R.color.holo_blue_light);
-            ContentResolver resolver = mContext.getContentResolver();
-            mGlowBGColor = Settings.System.getInt(resolver,
-                    Settings.System.NAVIGATION_BAR_GLOW_TINT, defaultColor);
-
-            if (mGlowBGColor == Integer.MIN_VALUE) {
-            	mGlowBGColor = defaultColor;
-            }
-            mGlowBG.setColorFilter(null);
-            mGlowBG.setColorFilter(mGlowBGColor, PorterDuff.Mode.SRC_ATOP);
-        }
-    }
-    
     @Override
     protected void onDraw(Canvas canvas) {
         if (mGlowBG != null) {
@@ -224,7 +193,6 @@ public class KeyButtonView extends ImageView {
                         ObjectAnimator.ofFloat(this, "glowScale", GLOW_MAX_SCALE_FACTOR)
                     );
                     as.setDuration(50);
-                    as.setDuration(durationSpeedOff);
                 } else {
                     as.playTogether(
                         ObjectAnimator.ofFloat(this, "glowAlpha", 0f),
@@ -232,7 +200,6 @@ public class KeyButtonView extends ImageView {
                         ObjectAnimator.ofFloat(this, "drawingAlpha", BUTTON_QUIESCENT_ALPHA)
                     );
                     as.setDuration(500);
-                    as.setDuration(durationSpeedOn);
                 }
                 as.start();
             }
@@ -315,77 +282,6 @@ public class KeyButtonView extends ImageView {
                 InputDevice.SOURCE_KEYBOARD);
         InputManager.getInstance().injectInputEvent(ev,
                 InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
-    }
-	
-    class SettingsObserver extends ContentObserver {
-        SettingsObserver(Handler handler) {
-            super(handler);
-        }
-
-        void observe() {
-            ContentResolver resolver = mContext.getContentResolver();
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_BUTTON_ALPHA), false,
-                    this);
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(
-                    Settings.System.NAVIGATION_BAR_TINT),
-                    false, this);
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(
-                    Settings.System.NAVIGATION_BAR_GLOW_TINT),
-                    false, this);
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(
-                    Settings.System.NAVIGATION_BAR_GLOW_DURATION[1]),
-                    false, this);
-            updateSettings();
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            updateSettings();
-        }
-    }
-
-    protected void updateSettings() {
-        ContentResolver resolver = mContext.getContentResolver();
-
-        durationSpeedOff = Settings.System.getInt(resolver,
-                Settings.System.NAVIGATION_BAR_GLOW_DURATION[0], 10);
-        durationSpeedOn = Settings.System.getInt(resolver,
-                Settings.System.NAVIGATION_BAR_GLOW_DURATION[1], 100);
-        BUTTON_QUIESCENT_ALPHA = Settings.System.getFloat(resolver, Settings.System.NAVIGATION_BAR_BUTTON_ALPHA, 0.7f);
-
-        setDrawingAlpha(BUTTON_QUIESCENT_ALPHA);
-
-        if (mGlowBG != null) {
-            int defaultColor = mContext.getResources().getColor(
-                    com.android.internal.R.color.holo_blue_light);
-            mGlowBGColor = Settings.System.getInt(resolver,
-                    Settings.System.NAVIGATION_BAR_GLOW_TINT, defaultColor);
-
-            if (mGlowBGColor == Integer.MIN_VALUE) {
-                mGlowBGColor = defaultColor;
-            }
-            mGlowBG.setColorFilter(null);
-            mGlowBG.setColorFilter(mGlowBGColor, PorterDuff.Mode.SRC_ATOP);
-        }
-
-        try {
-            int color = Settings.System.getInt(resolver,
-                    Settings.System.NAVIGATION_BAR_TINT);
-
-            if (color == Integer.MIN_VALUE) {
-                setColorFilter(null);
-            } else {
-                setColorFilter(null);
-                setColorFilter(Settings.System.getInt(resolver,
-                        Settings.System.NAVIGATION_BAR_TINT));
-            }
-        } catch (SettingNotFoundException e) {
-        }
-        invalidate();
     }
 }
 
