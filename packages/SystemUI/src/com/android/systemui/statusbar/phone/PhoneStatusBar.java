@@ -733,12 +733,25 @@ public class PhoneStatusBar extends BaseStatusBar {
         updateSearchPanel();
     }
 
+    private View.OnClickListener mRecentsClickListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            toggleRecentApps();
+        }
+    };
+
     // For small-screen devices (read: phones) that lack hardware navigation buttons
     private void addNavigationBar() {
         if (DEBUG) Slog.v(TAG, "addNavigationBar: about to add " + mNavigationBarView);
         if (mNavigationBarView == null) return;
+<<<<<<< HEAD
 
         prepareNavigationBarView();
+=======
+        
+        mNavigationBarView.reorient();
+ 
+        mNavigationBarView.getRecentsButton().setOnClickListener(mRecentsClickListener);
+>>>>>>> 5c8da94... Now showing: Navigation Bar, The Final Layout
 
         WindowManagerImpl.getDefault().addView(
                 mNavigationBarView, getNavigationBarLayoutParams());
@@ -746,6 +759,7 @@ public class PhoneStatusBar extends BaseStatusBar {
 
     private void repositionNavigationBar() {
         if (mNavigationBarView == null) return;
+<<<<<<< HEAD
 
         CustomTheme newTheme = mContext.getResources().getConfiguration().customTheme;
         if (newTheme != null &&
@@ -754,6 +768,12 @@ public class PhoneStatusBar extends BaseStatusBar {
             return;
         }
         prepareNavigationBarView();
+=======
+        
+        mNavigationBarView.reorient();
+
+        mNavigationBarView.getRecentsButton().setOnClickListener(mRecentsClickListener);
+>>>>>>> 5c8da94... Now showing: Navigation Bar, The Final Layout
 
         WindowManagerImpl.getDefault().updateViewLayout(
                 mNavigationBarView, getNavigationBarLayoutParams());
@@ -1920,13 +1940,19 @@ public class PhoneStatusBar extends BaseStatusBar {
             Slog.d(TAG, (showMenu?"showing":"hiding") + " the MENU button");
         }
         if (mNavigationBarView != null) {
+<<<<<<< HEAD
             mNavigationBarView.setMenuVisibility(showMenu);
+=======
+            mNavigationBarView.getMenuButton().setVisibility(showMenu
+                ? View.VISIBLE : View.INVISIBLE);
+>>>>>>> 5c8da94... Now showing: Navigation Bar, The Final Layout
         }
 
         // See above re: lights-out policy for legacy apps.
         if (showMenu) setLightsOn(true);
     }
 
+<<<<<<< HEAD
     @Override
     public void setImeWindowStatus(IBinder token, int vis, int backDisposition) {
         boolean altBack = (backDisposition == InputMethodService.BACK_DISPOSITION_WILL_DISMISS)
@@ -1937,6 +1963,10 @@ public class PhoneStatusBar extends BaseStatusBar {
                         : (mNavigationIconHints & ~StatusBarManager.NAVIGATION_HINT_BACK_ALT));
     }
 
+=======
+    // Not supported
+    public void setImeWindowStatus(IBinder token, int vis, int backDisposition) { }
+>>>>>>> 5c8da94... Now showing: Navigation Bar, The Final Layout
     @Override
     public void setHardKeyboardStatus(boolean available, boolean enabled) { }
 

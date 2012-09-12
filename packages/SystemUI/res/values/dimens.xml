@@ -43,7 +43,11 @@
     <dimen name="peek_window_y_offset">-12dp</dimen>
 
     <!-- thickness (height) of the navigation bar on phones that require it -->
+<<<<<<< HEAD
     <dimen name="navigation_bar_size">@*android:dimen/navigation_bar_height</dimen>
+=======
+    <dimen name="navigation_bar_size">32dp</dimen>
+>>>>>>> 5c8da94... Now showing: Navigation Bar, The Final Layout
 
     <!-- thickness (height) of the dead zone at the top of the navigation bar,
          reducing false presses on navbar buttons; approx 2mm -->
