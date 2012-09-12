@@ -167,14 +167,6 @@ public class NavigationBarView extends LinearLayout {
         }
     }
 
-    public View getRecentsButton() {
-        return mCurrentView.findViewById(R.id.recent_apps);
-    }
-
-    public View getMenuButton() {
-        return mCurrentView.findViewById(R.id.menu);
-    }
-
     public NavigationBarView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -412,12 +404,6 @@ public class NavigationBarView extends LinearLayout {
         mRotatedViews[Surface.ROTATION_270] = NAVBAR_ALWAYS_AT_RIGHT
                                                 ? findViewById(R.id.rot90)
                                                 : findViewById(R.id.rot270);
-<<<<<<< HEAD
-=======
-
-        mCurrentView = mRotatedViews[Surface.ROTATION_0];
-    }
->>>>>>> 5c8da94... Now showing: Navigation Bar, The Final Layout
 
         mCurrentView = mRotatedViews[Surface.ROTATION_0];
     }
@@ -429,7 +415,6 @@ public class NavigationBarView extends LinearLayout {
         }
         mCurrentView = mRotatedViews[rot];
         mCurrentView.setVisibility(View.VISIBLE);
-<<<<<<< HEAD
         if (!mIs600dp) {
             mVertical = (rot == Surface.ROTATION_90 || rot == Surface.ROTATION_270);
         } else {
@@ -447,8 +432,6 @@ public class NavigationBarView extends LinearLayout {
         if (DEBUG_DEADZONE) {
             mCurrentView.findViewById(R.id.deadzone).setBackgroundColor(0x808080FF);
         }
-=======
->>>>>>> 5c8da94... Now showing: Navigation Bar, The Final Layout
 
         if (DEBUG) {
             Slog.d(TAG, "reorient(): rot=" + mDisplay.getRotation());
