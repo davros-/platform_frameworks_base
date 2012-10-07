@@ -768,7 +768,7 @@ public class PhoneStatusBar extends BaseStatusBar {
                     | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                     | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
                     | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH,
-                PixelFormat.OPAQUE);
+                PixelFormat.TRANSLUCENT);
         // this will allow the navbar to run in an overlay on devices that support this
         if (ActivityManager.isHighEndGfx(mDisplay)) {
             lp.flags |= WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
@@ -2669,6 +2669,27 @@ public class PhoneStatusBar extends BaseStatusBar {
 
         @Override
         public void setBounds(Rect bounds) {
+
+        // NavigationBar background color
+        try {
+            boolean showNav = mWindowManager.hasNavigationBar();
+            if (showNav) {
+                // NavigationBar background color
+                final int DEFAULT_BACKGROUND_COLOR = 0xFF000000;
+                int navbarBackgroundColor = Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.NAVIGATION_BAR_BACKGROUND_COLOR, DEFAULT_BACKGROUND_COLOR);
+                if (DEBUG) {
+                    if (DEFAULT_BACKGROUND_COLOR != navbarBackgroundColor) Log.d(TAG, String.format
+                        ("background navbar color found to be: %d", navbarBackgroundColor));
+                    else Log.d(TAG, "default navbar color found");
+                }
+                if (navbarBackgroundColor != DEFAULT_BACKGROUND_COLOR)
+                    mNavigationBarView.setBackgroundColor(navbarBackgroundColor);
+                else
+                    mNavigationBarView.setBackgroundColor(DEFAULT_BACKGROUND_COLOR);
+            }
+        } catch (RemoteException ex) {
+            // no window manager? good luck with that
         }
     }
 }
